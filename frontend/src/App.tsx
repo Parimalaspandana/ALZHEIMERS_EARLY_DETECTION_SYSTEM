@@ -72,6 +72,7 @@ function App() {
             <b>Confidence:</b> {result.confidence}%
           </p>
         </div>
+<<<<<<< HEAD
       )}import { useState, ChangeEvent } from "react";
 
 interface PredictionResult {
@@ -159,6 +160,8 @@ function App() {
             <b>Confidence:</b> {(result.confidence * 100).toFixed(2)}%
           </p>
         </div>
+=======
+>>>>>>> 8d8b0dccf054482428d4f687cbccbc95945b0d3a
       )}
 
       {result?.error && (
@@ -171,6 +174,7 @@ function App() {
 }
 
 export default App;
+<<<<<<< HEAD
 
       {result?.error && (
         <p style={{ color: "red", marginTop: 20 }}>
@@ -182,3 +186,5 @@ export default App;
 }
 
 export default App;
+=======
+>>>>>>> 8d8b0dccf054482428d4f687cbccbc95945b0d3a

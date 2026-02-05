@@ -1,5 +1,13 @@
 fastapi
 uvicorn
+<<<<<<< HEAD
 torch
 numpy
 pillow
+=======
+torch==2.1.0
+torchvision
+numpy
+pillow
+python-multipart
+>>>>>>> 8d8b0dccf054482428d4f687cbccbc95945b0d3a

@@ -1,6 +1,7 @@
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
-from inference import predict_image   # ✅ SAME-FOLDER IMPORT
+
+from backend.inference import predict_image
 
 app = FastAPI(title="Alzheimer MRI Image Prediction API")
 
@@ -18,7 +19,4 @@ def root():
 
 @app.post("/predict")
 async def predict(file: UploadFile = File(...)):
-    """
-    Upload an MRI image and get Alzheimer stage prediction
-    """
     return await predict_image(file)

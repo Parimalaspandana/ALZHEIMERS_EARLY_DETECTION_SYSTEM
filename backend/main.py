@@ -1,15 +1,13 @@
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 #from inference import predict_image 
-from .inference import predict_image  # Or whatever the module name is
-# OR, if 'backend' is treated as a package:
-from backend.inference import predict_image
-from backend.model import predict_image  # Use the folder name as the package
+from .inference import predict_image 
+
 app = FastAPI(title="Alzheimer MRI Image Prediction API")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=["http://localhost:5173", "http://localhost:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -26,4 +24,4 @@ async def predict(file: UploadFile = File(...)):
 if __name__ == "__main__":
     import uvicorn
     # Change host to "127.0.0.1" to get the clickable local link in terminal
-    uvicorn.run(app, host="127.0.0.1", port=8000)
+    uvicorn.run(app, host="127.0.0.1", port=8001)

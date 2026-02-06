@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from inference import predict_image 
 # OR, if 'backend' is treated as a package:
 from backend.inference import predict_image
+from backend.model import predict_image  # Use the folder name as the package
 
 app = FastAPI(title="Alzheimer MRI Image Prediction API")
 

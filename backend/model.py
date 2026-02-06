@@ -1,16 +1,18 @@
-<<<<<<< HEAD
 import torch
 import torch.nn as nn
 import os
 
-MODEL_PATH = os.path.join(os.path.dirname(__file__), "model.pt")
+# 1. Path Logic
+# This ensures the model file is found regardless of where you run the script from
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODEL_PATH = os.path.join(BASE_DIR, "model.pt")
 
-class CNNModel(nn.Module):
+class AlzheimerCNN(nn.Module):
     def __init__(self, num_classes=4):
-        super().__init__()
+        super(AlzheimerCNN, self).__init__()
 
         self.features = nn.Sequential(
-            nn.Conv2d(1, 32, kernel_size=3, padding=1),  # ✅ 1 channel
+            nn.Conv2d(1, 32, kernel_size=3, padding=1),
             nn.ReLU(),
             nn.MaxPool2d(2),
 
@@ -19,53 +21,36 @@ class CNNModel(nn.Module):
             nn.MaxPool2d(2),
 
             nn.Conv2d(64, 128, kernel_size=3, padding=1),
-=======
-import torch.nn as nn
-
-class AlzheimerCNN(nn.Module):
-    def __init__(self):
-        super().__init__()
-
-        self.features = nn.Sequential(
-            nn.Conv2d(1, 32, 3, padding=1),
-            nn.ReLU(),
-            nn.MaxPool2d(2),
-
-            nn.Conv2d(32, 64, 3, padding=1),
-            nn.ReLU(),
-            nn.MaxPool2d(2),
-
-            nn.Conv2d(64, 128, 3, padding=1),
->>>>>>> 8d8b0dccf054482428d4f687cbccbc95945b0d3a
             nn.ReLU(),
             nn.MaxPool2d(2),
         )
 
+        # IMPORTANT: This assumes your input image is 128x128. 
+        # After three MaxPool layers (2x2), the size becomes 16x16.
         self.classifier = nn.Sequential(
             nn.Flatten(),
-<<<<<<< HEAD
-            nn.Linear(128 * 16 * 16, 256),  # ✅ matches training
+            nn.Linear(128 * 16 * 16, 256), 
             nn.ReLU(),
             nn.Linear(256, num_classes)
-=======
-            nn.Linear(128 * 16 * 16, 256),
-            nn.ReLU(),
-            nn.Linear(256, 4)
->>>>>>> 8d8b0dccf054482428d4f687cbccbc95945b0d3a
         )
 
     def forward(self, x):
         x = self.features(x)
-<<<<<<< HEAD
         x = self.classifier(x)
         return x
 
-
 def load_model():
-    model = CNNModel(num_classes=4)
-    model.load_state_dict(torch.load(MODEL_PATH, map_location="cpu"))
-    model.eval()
+    """
+    Initializes the model architecture and loads the saved weights.
+    """
+    model = AlzheimerCNN(num_classes=4)
+    
+    if os.path.exists(MODEL_PATH):
+        # map_location="cpu" ensures it works even if you don't have a GPU
+        model.load_state_dict(torch.load(MODEL_PATH, map_location="cpu"))
+        print(f"✅ Success: Model loaded from {MODEL_PATH}")
+    else:
+        print(f"⚠️ Warning: Model file not found at {MODEL_PATH}. Using random weights.")
+    
+    model.eval() # Set to evaluation mode
     return model
-=======
-        return self.classifier(x)
->>>>>>> 8d8b0dccf054482428d4f687cbccbc95945b0d3a

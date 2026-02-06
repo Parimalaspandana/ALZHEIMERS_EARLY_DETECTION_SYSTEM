@@ -3,92 +3,25 @@ import { useState, ChangeEvent } from "react";
 interface PredictionResult {
   prediction: string;
   confidence: number;
-  probabilities?: Record<string, number>;
   error?: string;
 }
 
 function App() {
   const [file, setFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
   const [result, setResult] = useState<PredictionResult | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async () => {
-    if (!file) {
-      alert("Please upload an MRI image");
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append("file", file);
-
-    setLoading(true);
-    setResult(null);
-
-    try {
-      const response = await fetch("http://127.0.0.1:8001/predict", {
-        method: "POST",
-        body: formData,
-      });
-
-      const data: PredictionResult = await response.json();
-      setResult(data);
-    } catch (error) {
-      alert("Prediction failed");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const API_BASE_URL =
+    import.meta.env.VITE_API_URL || "http://127.0.0.1:8001";
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      setFile(e.target.files[0]);
+      const selectedFile = e.target.files[0];
+      setFile(selectedFile);
+      setPreview(URL.createObjectURL(selectedFile));
     }
   };
-
-  return ( 
-      <div style={{ padding: 40 }}>
-      <h1>Alzheimer's Early Detection</h1>
-
-      <input
-        type="file"
-        accept="image/*"
-        onChange={handleFileChange}
-      />
-
-      <br />
-      <br />
-
-      <button onClick={handleSubmit} disabled={loading}>
-        {loading ? "Predicting..." : "Predict"}
-      </button>
-
-      {result && !result.error && (
-        <div style={{ marginTop: 20 }}>
-          <h3>Result</h3>
-          <p>
-            <b>Prediction:</b> {result.prediction}
-          </p>
-          <p>
-            <b>Confidence:</b> {result.confidence}%
-          </p>
-        </div>
-<<<<<<< HEAD
-      )}import { useState, ChangeEvent } from "react";
-
-interface PredictionResult {
-  prediction: string;
-  confidence: number;
-  probabilities?: Record<string, number>;
-  error?: string;
-}
-
-function App() {
-  const [file, setFile] = useState<File | null>(null);
-  const [result, setResult] = useState<PredictionResult | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
-
-  // This will use your Render URL in production and localhost during development
-  const API_BASE_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8001";
 
   const handleSubmit = async () => {
     if (!file) {
@@ -103,88 +36,85 @@ function App() {
     setResult(null);
 
     try {
-      // Updated to use the dynamic URL
       const response = await fetch(`${API_BASE_URL}/predict`, {
         method: "POST",
         body: formData,
       });
 
       if (!response.ok) {
-        throw new Error("Server responded with an error");
+        throw new Error("Prediction failed");
       }
 
       const data: PredictionResult = await response.json();
+
+      // ✅ CLAMP confidence to max 100%
+      data.confidence = Math.min(data.confidence, 100);
+
       setResult(data);
-    } catch (error) {
-      console.error("Error details:", error);
-      alert("Prediction failed. Make sure the backend is awake and CORS is enabled.");
+    } catch (err) {
+      setResult({
+        error: "Failed to get prediction",
+        prediction: "",
+        confidence: 0,
+      });
     } finally {
       setLoading(false);
     }
   };
 
-  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      setFile(e.target.files[0]);
-    }
-  };
+  return (
+    <div className="animated-background">
+      <div className="bg-white shadow-xl rounded-2xl p-8 w-full max-w-xl">
+        <h1 className="text-3xl font-bold text-center text-blue-700 mb-6">
+          Alzheimer’s Early Detection
+        </h1>
 
-  return ( 
-    <div style={{ padding: 40, maxWidth: "600px", margin: "0 auto", fontFamily: "sans-serif" }}>
-      <h1>Alzheimer's Early Detection</h1>
+        <input
+          type="file"
+          accept="image/*"
+          onChange={handleFileChange}
+          className="mb-4 w-full"
+        />
 
-      <input
-        type="file"
-        accept="image/*"
-        onChange={handleFileChange}
-      />
+        {preview && (
+          <img
+            src={preview}
+            alt="MRI Preview"
+            className="w-full h-64 object-contain border rounded-lg mb-4"
+          />
+        )}
 
-      <br />
-      <br />
+        <button
+          onClick={handleSubmit}
+          disabled={loading}
+          className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition disabled:opacity-50"
+        >
+          {loading ? "Analyzing..." : "Predict"}
+        </button>
 
-      <button 
-        onClick={handleSubmit} 
-        disabled={loading}
-        style={{ padding: "10px 20px", cursor: loading ? "not-allowed" : "pointer" }}
-      >
-        {loading ? "Predicting..." : "Predict"}
-      </button>
+        {result && !result.error && (
+          <div className="mt-6 p-4 border rounded-lg bg-blue-50">
+            <h3 className="text-xl font-semibold text-blue-800 mb-2">
+              Prediction Result
+            </h3>
+            <p>
+              <b>Stage:</b> {result.prediction}
+            </p>
+            <p>
+              <b>Confidence:</b>{" "}
+              {result.confidence.toFixed(2)}%
+            </p>
+          </div>
+        )}
 
-      {result && !result.error && (
-        <div style={{ marginTop: 20, padding: 20, border: "1px solid #ddd", borderRadius: 8 }}>
-          <h3>Result</h3>
-          <p>
-            <b>Prediction:</b> {result.prediction}
+        {result?.error && (
+          <p className="text-red-600 mt-4 text-center">
+            {result.error}
           </p>
-          <p>
-            <b>Confidence:</b> {(result.confidence * 100).toFixed(2)}%
-          </p>
-        </div>
-=======
->>>>>>> 8d8b0dccf054482428d4f687cbccbc95945b0d3a
-      )}
-
-      {result?.error && (
-        <p style={{ color: "red", marginTop: 20 }}>
-          Error: {result.error}
-        </p>
-      )}
+        )}
+      </div>
     </div>
   );
 }
 
 export default App;
-<<<<<<< HEAD
-
-      {result?.error && (
-        <p style={{ color: "red", marginTop: 20 }}>
-          Error: {result.error}
-        </p>
-      )}
-    </div>
-  );
-}
-
-export default App;
-=======
->>>>>>> 8d8b0dccf054482428d4f687cbccbc95945b0d3a

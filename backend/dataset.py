@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 from PIL import Image
 import torchvision.transforms as transforms
 import torch
@@ -14,7 +14,7 @@ def preprocess_image(image: Image.Image):
     image = transform(image)
     image = image.unsqueeze(0)  # batch dimension
     return image
-=======
+
 import os
 from PIL import Image
 from torch.utils.data import Dataset
@@ -52,4 +52,4 @@ class AlzheimerDataset(Dataset):
         image = self.transform(image)
         label = self.labels[idx]
         return image, label
->>>>>>> 8d8b0dccf054482428d4f687cbccbc95945b0d3a
+
